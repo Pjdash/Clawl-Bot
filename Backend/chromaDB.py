@@ -4,31 +4,24 @@ from Backend.models import get_embedding_model
 
 PERSIST_DIRECTORY = "./chroma_db"
 
-
 def create_vector_db(chunks):
-    """
-    chunks =
-    [
-        {
-            "text": "...",
-            "url": "...",
-            "title": "..."
-        }
-    ]
-    """
 
+    print("Step 1")
     embedding_model = get_embedding_model()
+
+    print("Step 2")
 
     texts = []
     metadatas = []
 
     for chunk in chunks:
         texts.append(chunk["text"])
-
         metadatas.append({
             "url": chunk["url"],
             "title": chunk["title"]
         })
+
+    print("Step 3")
 
     vector_db = Chroma.from_texts(
         texts=texts,
@@ -36,6 +29,8 @@ def create_vector_db(chunks):
         metadatas=metadatas,
         persist_directory=PERSIST_DIRECTORY
     )
+
+    print("Step 4")
 
     return vector_db
 

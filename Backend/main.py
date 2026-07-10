@@ -46,6 +46,7 @@ class CrawlRequest(BaseModel):
 
 
 class QueryRequest(BaseModel):
+    session_id: str
     query: str
     top_k: int = 8
 
@@ -264,33 +265,16 @@ def run_query(req: QueryRequest):
 
     try:
 
-        documents = retrieve_documents(
-            req.query,
-            k=req.top_k
-        )
-
-        if len(documents) == 0:
-
-            return {
-
-                "answer":
-                "No relevant content found.",
-
-                "sources": [],
-
-                "chunks": []
-
-            }
-
-        answer = generate_answer(
-
+        result = generate_answer(
             query=req.query,
-
-            retrieved_docs=documents,
-
-            api_key=api_key
-
+            api_key=api_key,
+            session_id=req.session_id,
+            top_k=req.top_k
         )
+
+        answer = result["answer"]
+
+        documents = result["context"]
 
         sources = []
 
@@ -308,8 +292,7 @@ def run_query(req: QueryRequest):
 
                     "url": url,
 
-                    "title":
-                    doc.metadata.get(
+                    "title": doc.metadata.get(
                         "title",
                         "Untitled"
                     )
@@ -322,14 +305,11 @@ def run_query(req: QueryRequest):
 
             chunks.append({
 
-                "url":
-                doc.metadata.get("url"),
+                "url": doc.metadata.get("url"),
 
-                "title":
-                doc.metadata.get("title"),
+                "title": doc.metadata.get("title"),
 
-                "text":
-                doc.page_content
+                "text": doc.page_content
 
             })
 
@@ -346,13 +326,9 @@ def run_query(req: QueryRequest):
     except Exception as e:
 
         raise HTTPException(
-
             status_code=500,
-
             detail=str(e)
-
         )
-    
 
 @app.get("/api/sources")
 def get_sources():

@@ -17,7 +17,7 @@ from Backend.chromaDB import (
 )
 
 from Backend.vector_store import retrieve_documents
-
+from Backend.bm25_store import create_bm25_index
 
 load_dotenv()
 
@@ -133,7 +133,15 @@ def run_crawl_and_ingest_task(
             "Creating embeddings..."
         )
 
+        print("Creating Chroma...")
+
         create_vector_db(chunks)
+
+        print("Creating BM25...")
+
+        create_bm25_index(chunks)
+
+        print("Done.")
 
         crawl_state["status"] = "completed"
 

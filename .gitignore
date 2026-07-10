@@ -1,0 +1,9 @@
+**/.env
+__pycache__/
+*.py[cod]
+
+# Chroma Vector Database
+chroma_db/
+
+# BM25 Index
+bm25_index.pkl
